@@ -46,7 +46,7 @@ Implementation plan (phases, decisions): `docs/implementation-plan.md`
 | `BANK_PROMPT` | `finanziq/scripts/process_payslip.py:194` |
 | `parsers/payslip_parser.py` | `finanziq/scripts/parsers/payslip_parser.py` |
 | `parsers/bank_parser.py` | `finanziq/scripts/parsers/bank_parser.py` |
-| `categorizer.py` | `finanziq/scripts/parsers/categorizer.py` |
+| `parsers/categorizer.py` | `finanziq/scripts/parsers/categorizer.py` |
 | `dashboard/index.html` | `finanziq/dashboard/index.html` |
 
 When copying these files, preserve them exactly. Do not refactor, rename, or "improve" them — they are validated against real German financial documents.

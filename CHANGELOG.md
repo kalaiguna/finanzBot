@@ -23,12 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.0] - Parsers — _pending_
+## [0.2.0] - Parsers — 2026-09-19
 
 ### Added
-- `categorizer.py` — Keyword-based German merchant → spending category classifier (200+ rules, copied from finanziq)
-- `parsers/payslip_parser.py` — Deterministic DATEV Brutto-Netto-Abrechnung parser; returns `_confidence` 0–100 (copied from finanziq)
-- `parsers/bank_parser.py` — Deterministic Sparkasse Kontoauszug parser; returns `_confidence` 0–100 (copied from finanziq)
+- `parsers/categorizer.py` — Keyword-based German merchant → spending category classifier (200+ rules, copied verbatim from finanziq); placed inside `parsers/` to preserve the relative import in `bank_parser.py`
+- `parsers/payslip_parser.py` — Deterministic DATEV Brutto-Netto-Abrechnung parser; returns `_confidence` 0–100; copied verbatim from finanziq
+- `parsers/bank_parser.py` — Deterministic Sparkasse Kontoauszug parser; returns `_confidence` 0–100; copied verbatim from finanziq
+- `parsers/__init__.py` — package marker
 
 ---
 

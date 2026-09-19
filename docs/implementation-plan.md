@@ -107,13 +107,12 @@ Sources:
 - `NL_TO_SQL_PROMPT` ← spec §4.6
 - `NL_TO_ANSWER_PROMPT` ← new (takes SQL result → readable answer)
 
-### Step 4 — `categorizer.py`
-Copy verbatim from `finanziq/scripts/parsers/categorizer.py`. No changes needed.
-
-### Step 5 — `parsers/` directory
-Copy the two deterministic parsers from finanziq:
+### Step 4 — `parsers/` directory
+Copy verbatim from finanziq. `categorizer.py` lives inside `parsers/` (not root) to preserve
+the relative import `from .categorizer import categorize` in `bank_parser.py` unchanged.
+- `parsers/categorizer.py` ← `finanziq/scripts/parsers/categorizer.py`
 - `parsers/payslip_parser.py` ← `finanziq/scripts/parsers/payslip_parser.py`
-- `parsers/bank_parser.py` ← `finanziq/scripts/parsers/bank_parser.py` (imports `categorizer`)
+- `parsers/bank_parser.py` ← `finanziq/scripts/parsers/bank_parser.py`
 - `parsers/__init__.py` ← empty
 
 These are dependency-free except `pdfplumber` and `re`.
