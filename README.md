@@ -1,96 +1,63 @@
 # finanzbot
 
-Personal finance automation via Telegram. Send receipt photos, bank statement PDFs, and payslip PDFs — get structured data stored automatically in Turso Edge SQLite. Ask natural language questions about your spending.
+Personal finance automation via Telegram. Send a receipt photo, bank statement PDF, or payslip PDF — finanzbot extracts the data, stores it in a personal database, and lets you query it in plain language.
 
-## Prerequisites
-
-- Google Cloud account with billing enabled (required even for free tier)
-- `gcloud` CLI installed and authenticated
-- Docker installed
-- Telegram bot token from @BotFather
-- Turso database URL and auth token
-- Gemini API key from [aistudio.google.com](https://aistudio.google.com)
-
-## Secrets Setup
-
-Store all secrets in Google Secret Manager before deploying:
-
-```bash
-echo -n "your-telegram-token"   | gcloud secrets create telegram-bot-token --data-file=-
-echo -n "your-gemini-key"       | gcloud secrets create gemini-api-key --data-file=-
-echo -n "libsql://db.turso.io"  | gcloud secrets create turso-db-url --data-file=-
-echo -n "your-turso-token"      | gcloud secrets create turso-auth-token --data-file=-
-echo -n "123456789"             | gcloud secrets create allowed-user-id --data-file=-
+```
+You → Telegram → finanzbot → Gemini + Turso → "You spent €1,284 last month"
 ```
 
-Replace `your-gcp-project-id` in `deploy.sh` with your actual GCP project ID.
+---
 
-## Deploy
+## What it does
 
-```bash
-chmod +x deploy.sh
-./deploy.sh
-```
+- **Receipt photo** → reads merchant, date, total, and spending category
+- **Bank statement PDF** → parses every transaction, assigns categories
+- **Payslip PDF** → extracts gross, net, tax, and year-to-date figures
+- **Text question** → converts to SQL, queries your database, replies in natural language
 
-This builds the container, deploys to Cloud Run, and registers the Telegram webhook in one step.
+Runs entirely serverless on Google Cloud Run. Zero cost for personal use (Gemini, Turso, and Cloud Run all have generous free tiers).
 
-## Turso Database
+---
 
-Schema is applied automatically on first startup via `db.init_schema()`. To create the database:
+## Quick start
 
-```bash
-turso db create finanzbot
-turso db show finanzbot --url    # → TURSO_DATABASE_URL
-turso db tokens create finanzbot  # → TURSO_AUTH_TOKEN
-```
+1. [Set up secrets](docs/guide.md#secrets) in Google Secret Manager (5 values)
+2. [Create a Turso database](docs/guide.md#turso-database-setup) and get the URL + token
+3. Edit `PROJECT_ID` in `deploy.sh`, then run `./deploy.sh`
+4. Send a receipt photo to your bot on Telegram
 
-## Historical Data Migration
+---
 
-To import existing finanziq data into Turso:
+## Detailed guides
 
-```bash
-python migrate_finanziq.py
-```
+| Audience | Link |
+|---|---|
+| **Users** — what you can send, what you get back, privacy | [Guide → For Users](docs/guide.md#1-for-users) |
+| **Developers & AI engineers** — tech stack, architecture, AI usage, tests | [Guide → For Developers](docs/guide.md#2-for-developers--ai-engineers) |
+| **DevOps engineers** — Cloud Run, secrets, deploy, local dev | [Guide → For DevOps](docs/guide.md#3-for-devops-engineers) |
 
-Requires finanziq to be at `../finanziq` relative to this repo. Safe to run multiple times — all inserts are `INSERT OR IGNORE` with content hashes.
+---
 
-## Local Development
+## Tech stack (at a glance)
 
-```bash
-cp .env.example .env
-# fill in real values
+Python 3.12 · Flask · Gemini 2.0 Flash · Turso Edge SQLite · Google Cloud Run · Docker · Pydantic v2
 
-pip install -r requirements.txt
-flask --app main run --port 8080
-
-# expose locally with ngrok for webhook testing
-ngrok http 8080
-curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<ngrok-id>.ngrok.io/webhook"
-```
+---
 
 ## Routes
 
 | Route | Description |
 |---|---|
 | `POST /webhook` | Telegram update receiver |
-| `GET /dashboard` | Static finance dashboard (from finanziq) |
-| `GET /health` | Liveness probe for Cloud Run |
+| `GET /dashboard` | Static finance dashboard |
+| `GET /health` | Liveness probe |
 
-## Supported Message Types
+---
 
-| What you send | What happens |
-|---|---|
-| Receipt photo (JPEG/PNG) | Gemini Vision extracts date, merchant, total → stored in `receipts` |
-| Bank statement PDF (filename contains `konto` or `auszug`) | Deterministic Sparkasse parser (Gemini fallback if confidence < 80) → stored in `transactions` |
-| Payslip PDF (filename contains `abrechnung`, `gehalts`, `lohn`, etc.) | Deterministic DATEV parser (Gemini fallback if confidence < 80) → stored in `payslips` |
-| Text message | Natural language query → Gemini → SQL → formatted answer |
+## Running tests
 
-## Architecture
-
-```
-Telegram → Cloud Run (Flask) → router.py
-                                 ├── extractor.py → pdfplumber + Gemini → Turso
-                                 └── querier.py  → Gemini → Turso → Gemini → reply
+```bash
+python -m pytest tests/ -v
 ```
 
-All file processing is in-memory (`io.BytesIO`). Nothing is written to disk.
+27 tests, no credentials required (all external calls mocked).
