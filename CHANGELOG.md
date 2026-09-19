@@ -55,10 +55,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.6.0] - Migration — _pending_
+## [0.6.0] - Migration — 2026-09-19
 
 ### Added
-- `migrate_finanziq.py` — One-off historical data import from finanziq: `data/processed/data.json` (payslips + bank statement transactions) and `data/processed/receipts.json`; dedup-safe via `INSERT OR IGNORE` with `_hash`
+- `migrate_finanziq.py` — One-off historical data import from `../finanziq/data/processed/data.json` (payslips + bank statement transactions) and `../finanziq/data/processed/receipts.json`; receipt `merchant` mapped from finanziq `store` field before hashing so dedup keys are consistent with live processing; category derived from full store name via `parsers.categorizer` (e.g. `"dm-drogerie markt"` → `Shopping`); re-runnable safely via `INSERT OR IGNORE`
 
 ---
 
