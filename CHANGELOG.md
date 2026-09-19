@@ -33,10 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.3.0] - Extractor — _pending_
+## [0.3.0] - Extractor — 2026-09-19
 
 ### Added
-- `extractor.py` — Document extraction module: `handle_receipt()`, `handle_bank_pdf()`, `handle_payslip_pdf()`; deterministic-first strategy (confidence ≥ 80 skips Gemini); all file I/O in memory via `io.BytesIO`
+- `extractor.py` — Document extraction module: `handle_receipt()`, `handle_bank_pdf()`, `handle_payslip_pdf()`; deterministic-first strategy (confidence ≥ 80 skips Gemini, exception from parser also falls back gracefully); all file I/O in memory via `io.BytesIO`, nothing written to disk; `_fmt()` helper guards against `None` monetary values in confirmation strings
 
 ---
 
