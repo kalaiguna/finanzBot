@@ -10,14 +10,19 @@ You → Telegram → finanzbot → Gemini + Turso → "You spent €1,284 last m
 
 ## Why finanzbot?
 
-Most finance apps require you to connect your bank account, sign up for a service, or enter data manually. finanzbot flips that:
+Most finance apps sit on your home screen waiting for you to open them, navigate to the right screen, and type something in. finanzbot lives in Telegram — where you already are.
 
-- **Zero manual entry** — forward a document, data is extracted automatically
-- **No bank login required** — works from the PDFs and receipts you already have
-- **Your data stays yours** — stored in your own database on your own GCP project; no third-party SaaS holds your financial data
-- **Built for German documents** — purpose-built for DATEV payslips and Sparkasse bank statements; generic apps frequently misread German formats
-- **Ask in plain language** — no dashboard to learn, no filters to configure; just ask
-- **Runs free** — Gemini, Turso, and Cloud Run free tiers cover personal use volume entirely
+Done shopping? Snap the receipt, send it. Payslip arrived? Forward the PDF. That's the entire workflow — no app to open, no form to fill, no category to pick from a dropdown.
+
+A few things that make it different:
+
+- **Capture in the moment** — Telegram is always a swipe away; the friction of opening a dedicated finance app is enough to make most people skip it
+- **No manual entry, ever** — photo or PDF in, structured data out
+- **Ask instead of navigate** — "how much did I spend on dining this month?" beats hunting through filters and date pickers
+- **No bank login required** — works from the PDFs and receipts you already have; no OAuth dance with your bank
+- **Your data, your infrastructure** — stored in your own database; no third-party SaaS holds your financial records
+- **Built for German documents** — purpose-built for DATEV payslips and Sparkasse statements; generic apps frequently misread German formats
+- **Free to run** — Gemini, Turso, and Cloud Run free tiers cover personal use entirely
 
 ---
 
