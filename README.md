@@ -8,6 +8,19 @@ You → Telegram → finanzbot → Gemini + Turso → "You spent €1,284 last m
 
 ---
 
+## Why finanzbot?
+
+Most finance apps require you to connect your bank account, sign up for a service, or enter data manually. finanzbot flips that:
+
+- **Zero manual entry** — forward a document, data is extracted automatically
+- **No bank login required** — works from the PDFs and receipts you already have
+- **Your data stays yours** — stored in your own database on your own GCP project; no third-party SaaS holds your financial data
+- **Built for German documents** — purpose-built for DATEV payslips and Sparkasse bank statements; generic apps frequently misread German formats
+- **Ask in plain language** — no dashboard to learn, no filters to configure; just ask
+- **Runs free** — Gemini, Turso, and Cloud Run free tiers cover personal use volume entirely
+
+---
+
 ## What it does
 
 - **Receipt photo** → reads merchant, date, total, and spending category

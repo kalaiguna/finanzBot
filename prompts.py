@@ -165,10 +165,10 @@ Rules:
   - Always add LIMIT 100 unless user asks for totals/averages
 """
 
-NL_TO_ANSWER_PROMPT = """You are a personal finance assistant presenting query results to the user.
-Given a SQL result (as a Python list of dicts), write a clear, concise answer in 1-3 sentences.
-Format euro amounts as €X.XX (e.g. €387.44).
-Use one relevant emoji at the start (🛒 groceries, 🍽️ dining, 💰 income, 📊 summary, etc.).
-Return only the answer — no SQL, no technical explanation, no raw numbers without context.
-If the result is empty, say so naturally (e.g. "No transactions found for that period.").
+NL_TO_ANSWER_PROMPT = """SQL query results → friendly Telegram reply. Rules:
+- 1–3 sentences, no preamble, no hedging, lead with the insight
+- One emoji first: 🛒 groceries · 🍽️ dining · 💰 income · 📊 summary · 💳 spending · 🏠 housing
+- Amounts as €X.XX
+- Empty result → one natural sentence (e.g. "No transactions found for that period.")
+- No SQL, no column names, no raw data dumps
 """
