@@ -13,13 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.0] - Foundation — _pending_
+## [0.1.0] - Foundation — 2026-09-19
 
 ### Added
-- `models.py` — Pydantic v2 models: `Receipt`, `Transaction`, `BankStatement`, `Payslip`
-- `db.py` — Turso HTTP pipeline client; `init_schema()`, `insert_receipt()`, `insert_transactions()`, `insert_payslip()`, `query()`; deduplication via `_hash TEXT UNIQUE` on `receipts` and `transactions`
-- `prompts.py` — All Gemini prompt templates: `PAYSLIP_PROMPT`, `BANK_PROMPT` (copied verbatim from finanziq), `RECEIPT_EXTRACTION_PROMPT`, `NL_TO_SQL_PROMPT`, `NL_TO_ANSWER_PROMPT`
-- `.env.example` — Required environment variable reference
+- `models.py` — Pydantic v2 models: `Receipt`, `Transaction`, `BankStatement`, `Payslip`; all monetary fields auto-rounded to 2 dp via `field_validator`
+- `db.py` — Turso HTTP pipeline client (`requests` only, no libsql package); `init_schema()`, `insert_receipt()`, `insert_transactions()`, `insert_payslip()`, `query()`; deduplication via `_hash TEXT UNIQUE` on `receipts` (keyed on `date|merchant|total`) and `transactions` (keyed on `date|description|amount|statement_month`); all inserts are `INSERT OR IGNORE`
+- `prompts.py` — `PAYSLIP_PROMPT` and `BANK_PROMPT` copied verbatim from finanziq (validated against real DATEV/Sparkasse documents); `RECEIPT_EXTRACTION_PROMPT` from spec; `NL_TO_SQL_PROMPT` from spec; `NL_TO_ANSWER_PROMPT` (new)
+- `.env.example` — All 6 required environment variables with source instructions
 
 ---
 
