@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.0] - First Deployable Bot — _pending_
+## [1.0.0] - First Deployable Bot — 2026-09-19
 
 ### Added
 - `tests/test_extractor.py` — 11 unit tests covering receipt (4 cases), bank PDF (4 cases), payslip PDF (3 cases); mocked Gemini + Telegram file API; asserts deterministic-first path, in-memory-only constraint, dedup idempotency
