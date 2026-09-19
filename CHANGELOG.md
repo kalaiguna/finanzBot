@@ -47,11 +47,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.5.0] - Router & Server — _pending_
+## [0.5.0] - Router & Server — 2026-09-19
 
 ### Added
-- `router.py` — Telegram message classifier and dispatcher; user ID validation (`ALLOWED_TELEGRAM_USER_ID`) with silent rejection of unknown users
-- `main.py` — Flask webhook server; `/webhook` POST handler; `/dashboard` static HTML route; `/health` liveness probe; `init_schema()` on startup
+- `router.py` — Telegram message classifier and dispatcher; validates `ALLOWED_TELEGRAM_USER_ID` (with `.strip()`) first and silently returns `None` for unknown users; bank keywords checked before payslip keywords to prevent 'netto' substring matching compound German words in bank filenames; `_largest_photo_id()` guards against empty photo arrays
+- `main.py` — Flask webhook server; `db.init_schema()` called at module level (runs under gunicorn, not just direct execution); entire webhook handler wrapped in try/except so HTTP 200 is always returned; exception path attempts to send user-facing error reply; `_send()` logs Telegram API errors via `raise_for_status()`; `/dashboard` returns 404 on missing file; `/health` liveness probe
 
 ---
 
