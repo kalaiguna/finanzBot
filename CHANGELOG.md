@@ -50,8 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.0] - Router & Server — 2026-09-19
 
 ### Added
-- `router.py` — Telegram message classifier and dispatcher; validates `ALLOWED_TELEGRAM_USER_ID` first and silently returns `None` for unknown users; routes photo → `handle_receipt`, image document → `handle_receipt`, payslip PDF (keyword match) → `handle_payslip_pdf`, bank PDF (keyword match) → `handle_bank_pdf`, unrecognised PDF → bank statement default, text → `handle_query`
-- `main.py` — Flask webhook server; `/webhook` always returns HTTP 200 to prevent Telegram retry loops; `/dashboard` serves `dashboard/index.html`; `/health` liveness probe; `db.init_schema()` called on startup; `PORT` uses `os.environ.get` with default `"8080"` (Cloud Run always sets it; local dev needs the fallback)
+- `router.py` — Telegram message classifier and dispatcher; validates `ALLOWED_TELEGRAM_USER_ID` (with `.strip()`) first and silently returns `None` for unknown users; bank keywords checked before payslip keywords to prevent 'netto' substring matching compound German words in bank filenames; `_largest_photo_id()` guards against empty photo arrays
+- `main.py` — Flask webhook server; `db.init_schema()` called at module level (runs under gunicorn, not just direct execution); entire webhook handler wrapped in try/except so HTTP 200 is always returned; exception path attempts to send user-facing error reply; `_send()` logs Telegram API errors via `raise_for_status()`; `/dashboard` returns 404 on missing file; `/health` liveness probe
 
 ---
 
