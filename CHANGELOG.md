@@ -62,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.7.0] - Packaging — _pending_
+## [0.7.0] - Packaging — 2026-09-19
 
 ### Added
 - `Dockerfile` — Python 3.12-slim container with pdfplumber system deps (poppler)
