@@ -75,9 +75,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - First Deployable Bot — _pending_
 
 ### Added
-- `tests/test_extractor.py` — Unit tests for extraction paths (mocked Gemini + Telegram file API)
-- `tests/test_querier.py` — Unit tests for NL→SQL→answer pipeline (mocked Gemini + Turso)
-- `tests/test_router.py` — Unit tests for all 4 routing branches + user ID rejection
+- `tests/test_extractor.py` — 11 unit tests covering receipt (4 cases), bank PDF (4 cases), payslip PDF (3 cases); mocked Gemini + Telegram file API; asserts deterministic-first path, in-memory-only constraint, dedup idempotency
+- `tests/test_querier.py` — 5 unit tests: valid query round-trip, non-SELECT rejection, semicolon injection guard, empty Turso result, prose-instead-of-SQL fallback
+- `tests/test_router.py` — 8 unit tests covering all 4 routing branches, unknown user ID rejection (2 cases), unrecognised file type, non-PDF document
 
 ### Changed
 - Version bumped to 1.0.0 on passing full validation checklist from `finanzbot_spec.md §7.2`

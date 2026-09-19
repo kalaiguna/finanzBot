@@ -243,9 +243,11 @@ Migrates historical data from finanziq into Turso. Two data sources (not one):
 Map finanziq's richer payslip structure to the flat `payslips` table fields.
 
 ### Step 14 — `tests/`
-- `tests/test_extractor.py` — mock Gemini and Telegram file download; test JSON parsing, Pydantic validation, Turso insert call
-- `tests/test_querier.py` — mock Gemini; test SQL generation and answer formatting
-- `tests/test_router.py` — test all 4 routing branches + user ID rejection
+
+See §9 (Test Plan) for full case breakdown. Files:
+- `tests/test_extractor.py`
+- `tests/test_querier.py`
+- `tests/test_router.py`
 
 ---
 
@@ -361,6 +363,85 @@ finanzbot/
     ├── test_querier.py        # Step 14
     └── test_router.py         # Step 14
 ```
+
+---
+
+## 9. Test Plan
+
+Framework: `pytest`. Mocking: `unittest.mock.patch`. No real network calls, no real Turso DB, no real Gemini in unit tests.
+
+---
+
+### `tests/test_extractor.py`
+
+#### Receipt handling
+
+| ID | Case | Setup | Assert |
+|---|---|---|---|
+| R-01 | Valid receipt image | Mock Telegram file download → bytes; mock Gemini → valid JSON | `Receipt` model populated; `db.insert_receipt` called once with correct `merchant`, `total`, `_hash` |
+| R-02 | Gemini returns malformed JSON | Mock Gemini → `"not json"` | `ValueError` caught internally; confirmation string contains "❌" or "failed" |
+| R-03 | Gemini returns JSON missing required field | Mock Gemini → `{"date": "2026-01-01"}` (no `total`) | Pydantic `ValidationError` caught; graceful error reply |
+| R-04 | Duplicate receipt (hash collision) | Insert once; mock Gemini → same receipt data again | `db.insert_receipt` called twice; second insert is `INSERT OR IGNORE` → no exception, idempotent reply |
+
+#### Bank PDF handling
+
+| ID | Case | Setup | Assert |
+|---|---|---|---|
+| B-01 | Deterministic parser confidence ≥ 80 | Mock `parse_bank_statement` → `{_confidence: 100, transactions: [...]}` | Gemini `generate_content` NOT called; `db.insert_transactions` called with correct rows |
+| B-02 | Deterministic parser confidence < 80 | Mock `parse_bank_statement` → `{_confidence: 50}`; mock Gemini → valid bank JSON | Gemini IS called; transactions inserted from Gemini result |
+| B-03 | In-memory only | Patch `open` / `tempfile` | No file path written to disk during PDF processing |
+| B-04 | Zero transactions in statement | Deterministic parser returns `transactions: []` | Confirmation string mentions 0 transactions; no DB insert attempted |
+
+#### Payslip PDF handling
+
+| ID | Case | Setup | Assert |
+|---|---|---|---|
+| P-01 | Deterministic parser confidence ≥ 80 | Mock `parse_payslip` → `{_confidence: 100, ...}` | Gemini NOT called; `db.insert_payslip` called with correct gross/net/payout |
+| P-02 | Deterministic parser confidence < 80 | Mock `parse_payslip` → `{_confidence: 40}`; mock Gemini → valid payslip JSON | Gemini IS called |
+| P-03 | Duplicate payslip (same year+month) | `UNIQUE(year, month)` → second insert → `INSERT OR IGNORE` | No exception; reply indicates already recorded |
+
+---
+
+### `tests/test_querier.py`
+
+| ID | Case | Setup | Assert |
+|---|---|---|---|
+| Q-01 | Valid NL query | Mock Gemini step-1 → `SELECT SUM(total) FROM receipts WHERE category='Groceries'`; mock Turso → `[[387.44]]`; mock Gemini step-2 → formatted answer | Final string returned contains `"387"` |
+| Q-02 | Gemini generates non-SELECT SQL | Mock Gemini step-1 → `DELETE FROM receipts` | SQL rejected before Turso call; error reply returned; `db.query` NOT called |
+| Q-03 | Gemini generates SQL with semicolon injection | Mock Gemini → `SELECT 1; DROP TABLE receipts` | Only the part before `;` passes, or entire query rejected |
+| Q-04 | Turso returns empty result | Mock Turso → `[]` | Step-2 Gemini called with empty rows; graceful "no data found" answer returned (not an exception) |
+| Q-05 | Gemini step-1 returns prose instead of SQL | Mock Gemini → `"I don't know"` | Caught gracefully; user-facing error reply; no Turso call |
+
+---
+
+### `tests/test_router.py`
+
+| ID | Case | Setup | Assert |
+|---|---|---|---|
+| RT-01 | Photo from allowed user | Update with `photo` field, correct user ID | `extractor.handle_receipt` called |
+| RT-02 | PDF "abrechnung" filename from allowed user | Document with `mime_type=application/pdf`, `file_name="Brutto-Netto-Abrechnung 2026 07 Juli.pdf"` | `extractor.handle_payslip_pdf` called |
+| RT-03 | PDF "konto" filename from allowed user | Document with `file_name="Konto_1061013705-Auszug_2026_0007.PDF"` | `extractor.handle_bank_pdf` called |
+| RT-04 | Text message from allowed user | `text: "how much did I spend last month?"` | `querier.handle_query` called with message text |
+| RT-05 | Any message from unknown user | Correct structure but wrong `user_id` | Returns `None`; no handler called |
+| RT-06 | Photo from unknown user | Photo message, wrong user ID | Returns `None`; `extractor.handle_receipt` NOT called |
+| RT-07 | PDF with no recognisable keywords | `file_name="document.pdf"` | Falls through to unrecognised reply; no crash |
+| RT-08 | Non-PDF document from allowed user | `mime_type=image/jpeg` as document | Not routed to PDF handler; treated as receipt or unrecognised |
+
+---
+
+### Spec §7.2 Validation Checklist (manual — Phase 8 sign-off gate)
+
+These cannot be unit-tested; they require a running deployment:
+
+- [ ] Send receipt photo → row in Turso `receipts`
+- [ ] Send Sparkasse PDF → all transactions in `transactions`
+- [ ] Send payslip PDF → correct gross/net in `payslips`
+- [ ] Query "how much on groceries last month?" → correct € figure
+- [ ] Query "what is my savings rate?" → computed from payslips + transactions
+- [ ] `GET /dashboard` → returns finanziq HTML
+- [ ] Message from unknown user → no response
+- [ ] `docker build` succeeds
+- [ ] `deploy.sh` completes → webhook registered → bot responds
 
 ---
 
