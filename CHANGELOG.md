@@ -9,7 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-> Phases in progress. Entries accumulate here until a phase is merged.
+### Added
+- `docs/guide.md` — three-audience guide (users, developers, DevOps); includes detailed extractor sub-flow diagram and observability/cost-protection section
+- `docs/backlog.md` — five-milestone product roadmap (v1.1 polish → v2.1 agentic insights); ADK adoption path documented
+
+### Changed
+- `README.md` — streamlined with "Why finanzbot?" section leading with the Telegram-in-the-moment pitch; links to all docs by audience
+- `prompts.py` — `NL_TO_ANSWER_PROMPT` tightened: role preamble replaced with directive fragment style; "friendly" tone preserved in task line; "lead with the insight" instruction added
+- `deploy.sh` — `--max-instances 3` added as cost-protection guard against runaway horizontal scaling
+- `docs/spec.md` — Amex statement support removed from future enhancements (out of scope); personal local paths replaced with relative `../finanziq`
+- `CLAUDE.md` — personal local path replaced with relative `../finanziq`
 
 ---
 
