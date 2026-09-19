@@ -4,7 +4,7 @@
 
 finanzbot is a serverless Telegram bot for personal finance automation. Users send receipt photos, bank statement PDFs, and payslip PDFs via Telegram; the bot extracts structured data and stores it in Turso Edge SQLite. Natural language queries ("how much did I spend on groceries last month?") are answered via Gemini + NL→SQL.
 
-It **replaces** the finanziq local-script + static-dashboard project at `C:\Users\g.aa.chandrasekaran\Code\finanziq`.
+It **replaces** the finanziq local-script + static-dashboard project (expected at `../finanziq` relative to this repo).
 
 Full spec: `docs/spec.md`
 Implementation plan (phases, decisions): `docs/implementation-plan.md`

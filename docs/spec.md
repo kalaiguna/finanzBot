@@ -4,7 +4,7 @@ Personal Finance Automation — Telegram + Gemini + Cloud Run + Turso
 
 Architecture & Implementation Specification _v1.0 · September 2026_
 
-Replaces / extends: C:\\Users\\g.aa.chandrasekaran\\Code\\finanziq
+Replaces / extends: finanziq (expected at `../finanziq` relative to this repo)
 
 _This document is the authoritative specification for finanzbot. It is intended to be fed directly to Claude Code or Antigravity CLI to scaffold and implement the full application._
 
@@ -29,7 +29,7 @@ _The static HTML dashboard (dashboard/index.html) from finanziq is preserved as-
 | App name                          | finanzbot                                      |
 | Repository                        | github.com/&lt;user&gt;/finanzbot              |
 | Language                          | Python 3.12                                    |
-| Existing codebase to migrate from | C:\\Users\\g.aa.chandrasekaran\\Code\\finanziq |
+| Existing codebase to migrate from | finanziq (`../finanziq`)                       |
 | Primary interface                 | Telegram Bot                                   |
 | Target runtime                    | Google Cloud Run (serverless container)        |
 
@@ -428,9 +428,9 @@ _Feed this entire section verbatim as the initial prompt when starting a Claude 
 You are implementing "finanzbot" — a Telegram bot for personal finance
 automation. The full specification is in this document.
 Existing codebase to reference (do not modify):
-  C:\Users\g.aa.chandrasekaran\Code\finanziq
+  ../finanziq
 Create a NEW repository at:
-  C:\Users\g.aa.chandrasekaran\Code\finanzbot
+  ../finanzbot
 Implementation order:
   1. models.py          — Pydantic models (Receipt, Transaction, Payslip)
   2. db.py              — Turso HTTP client + init_schema()
@@ -473,7 +473,6 @@ The implementation is complete when all of the following pass:
 | **Feature**            | **Description**                                                                       | **Complexity** |
 | ---------------------- | ------------------------------------------------------------------------------------- | -------------- |
 | Monthly summary push   | Bot proactively sends a monthly summary on the 1st of each month via Cloud Scheduler  | Low            |
-| Amex statement support | Add PDF extraction prompt for American Express statements                             | Low            |
 | Budget alerts          | Telegram alert when a category exceeds a configurable monthly limit                   | Medium         |
 | Multi-currency         | Handle travel receipts in non-EUR currencies, convert to EUR                          | Medium         |
 | Dashboard live data    | Update dashboard/index.html to fetch from /api/data endpoint instead of embedded JSON | Medium         |

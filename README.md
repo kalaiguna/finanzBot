@@ -35,6 +35,7 @@ Runs entirely serverless on Google Cloud Run. Zero cost for personal use (Gemini
 | **Users** — what you can send, what you get back, privacy | [Guide → For Users](docs/guide.md#1-for-users) |
 | **Developers & AI engineers** — tech stack, architecture, AI usage, tests | [Guide → For Developers](docs/guide.md#2-for-developers--ai-engineers) |
 | **DevOps engineers** — Cloud Run, secrets, deploy, local dev | [Guide → For DevOps](docs/guide.md#3-for-devops-engineers) |
+| **Product roadmap** — v1.1 polish → v2.0 agentic querier (ADK) | [Backlog](docs/backlog.md) |
 
 ---
 

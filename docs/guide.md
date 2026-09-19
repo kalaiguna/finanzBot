@@ -1,6 +1,6 @@
 # finanzbot — Detailed Guide
 
-> For a quick overview, see the [README](../README.md).
+> For a quick overview, see the [README](../README.md). For the product roadmap and future milestones, see the [Backlog](backlog.md).
 
 ---
 
@@ -78,13 +78,31 @@ Telegram Bot API
 Cloud Run — Flask app (main.py)
         │
         ├── router.py         — validates user ID, classifies message type
+        │         │
+        │         ├── photo / image document  ──────────────────────┐
+        │         ├── PDF (konto / auszug keywords)  ───────────────┤
+        │         ├── PDF (abrechnung / gehalts / lohn keywords)  ──┤
+        │         └── text message  ──────────────────────────────┐ │
+        │                                                         │ │
+        ├── extractor.py  ◄───────────────────────────────────────┘─┘
+        │     │
+        │     ├── Receipt (photo / image)
+        │     │     └── PIL Image → Gemini Vision → structured JSON
+        │     │
+        │     ├── Bank statement (PDF)
+        │     │     ├── pdfplumber → deterministic Sparkasse parser
+        │     │     │     confidence ≥ 80 → done
+        │     │     └── confidence < 80  → Gemini text fallback
+        │     │
+        │     └── Payslip (PDF)
+        │           ├── pdfplumber → deterministic DATEV parser
+        │           │     confidence ≥ 80 → done
+        │           └── confidence < 80  → Gemini text fallback
         │
-        ├── extractor.py      — documents → structured data
-        │     ├── parsers/    — deterministic (runs first, confidence 0–100)
-        │     └── Gemini      — fallback if confidence < 80
-        │
-        ├── querier.py        — NL → SQL → Turso → NL answer
-        │     └── Gemini      — both NL→SQL and SQL rows→answer steps
+        ├── querier.py  ◄─────── text message
+        │     ├── Gemini: NL → SQL
+        │     ├── db.py: validate SELECT + execute against Turso
+        │     └── Gemini: SQL rows → natural language answer
         │
         └── db.py             — Turso HTTP pipeline client
                 └── Turso Edge SQLite
@@ -232,6 +250,55 @@ To test the webhook locally, expose the port with [ngrok](https://ngrok.com) and
 ngrok http 8080
 curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://<ngrok-id>.ngrok.io/webhook"
 ```
+
+### Observability & cost protection
+
+finanzbot runs entirely on free tiers for personal use, but a misconfiguration (e.g. webhook loop, bot exposed to unexpected traffic) can generate surprise API and compute charges. Set these up before going live.
+
+**1. GCP Budget Alert — most important**
+
+```bash
+# In GCP Console → Billing → Budgets & alerts
+# Set monthly budget: €5 (well above expected €0 cost)
+# Alert thresholds: 50%, 80%, 100%
+# Notification: email + Pub/Sub if you want automated response
+```
+
+This is the single most effective cost protection measure. GCP will email you if spend deviates from zero.
+
+**2. Cloud Run — cap max instances**
+
+Add `--max-instances 3` to `deploy.sh` to prevent runaway horizontal scaling if the webhook receives unexpected bursts:
+
+```bash
+gcloud run deploy "$SERVICE_NAME" \
+  --max-instances 3 \
+  ...
+```
+
+For a single-user personal bot, 1 instance handles all load. The cap is a safety net, not a performance setting.
+
+**3. Cloud Run request count alert**
+
+In GCP Console → Cloud Monitoring → Alerting, create an alert on:
+
+- **Metric:** `run.googleapis.com/request_count`
+- **Threshold:** > 500 requests in 1 hour
+- **Rationale:** normal personal use is ~5–10 requests/day; a spike indicates webhook misconfiguration or an external party hammering the endpoint
+
+**4. Gemini API quota**
+
+Gemini 2.0 Flash free tier allows 1,500 requests/day via AI Studio. The bot uses 1–2 Gemini calls per message, so the limit supports ~750 documents/day — well above personal use.
+
+Monitor in GCP Console → APIs & Services → Gemini API → Quotas. Set a quota alert at 200 requests/day to get an early warning before the free tier is exhausted.
+
+**5. Cloud Logging — error rate alert**
+
+Cloud Run logs to Cloud Logging automatically. Create a log-based metric on `severity=ERROR` and alert if the error rate exceeds 10 errors in 10 minutes — this catches Turso outages, Gemini failures, or malformed webhook payloads before they silently accumulate.
+
+**6. Turso usage**
+
+Turso's free tier (500M reads, 10M writes, 5GB) will not be exhausted by personal use. Monitor in the [Turso dashboard](https://app.turso.tech). No native alerting on the free tier — a monthly manual check is sufficient.
 
 ### Historical data migration (one-off)
 

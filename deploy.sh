@@ -16,6 +16,7 @@ gcloud run deploy "$SERVICE_NAME" \
   --platform managed \
   --region "$REGION" \
   --allow-unauthenticated \
+  --max-instances 3 \
   --set-secrets "\
 TELEGRAM_BOT_TOKEN=telegram-bot-token:latest,\
 GEMINI_API_KEY=gemini-api-key:latest,\
