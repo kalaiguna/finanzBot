@@ -40,10 +40,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.4.0] - Querier — _pending_
+## [0.4.0] - Querier — 2026-09-19
 
 ### Added
-- `querier.py` — Natural language query pipeline: NL → Gemini → SQL → Turso → Gemini → formatted answer; SELECT-only guard on generated SQL
+- `querier.py` — Natural language query pipeline: NL → Gemini → SQL → Turso → Gemini → formatted answer; `_validate_sql()` strips to first semicolon-delimited statement and rejects anything that is not a SELECT before any DB call; empty result sets passed to Gemini for graceful natural-language "no data" responses
 
 ---
 
