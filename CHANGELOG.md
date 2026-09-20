@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/backlog.md` — five-milestone product roadmap (v1.1 polish → v2.1 agentic insights); ADK adoption path documented
 
 ### Changed
-- `README.md` — streamlined with "Why finanzbot?" section leading with the Telegram-in-the-moment pitch; links to all docs by audience
+- `README.md` — streamlined with "Why finanzbot?" section leading with the Telegram-in-the-moment pitch; links to all docs by audience; em dashes removed throughout
+- `docs/guide.md` — em dashes removed throughout (colons, semicolons, or commas used in place)
 - `prompts.py` — `NL_TO_ANSWER_PROMPT` tightened: role preamble replaced with directive fragment style; "friendly" tone preserved in task line; "lead with the insight" instruction added
 - `deploy.sh` — `--max-instances 3` added as cost-protection guard against runaway horizontal scaling
 - `docs/spec.md` — Amex statement support removed from future enhancements (out of scope); personal local paths replaced with relative `../finanziq`
